@@ -1,24 +1,17 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import DataContext from './context/DataContext';
-import api from './api/posts';
+import { useStoreState, useStoreActions } from 'easy-peasy';
 
 const PostPage = () => {
   const { id } = useParams(); //Needs to match param defined in route
-  const { posts, setPosts } = useContext(DataContext);
   const navigate = useNavigate();
+  const deletePost = useStoreActions((actions) => actions.deletePost);
+  const getPostById = useStoreState((state) => state.getPostById);
+  const post = getPostById(id);
 
-  const post = posts.find((post) => post.id.toString() === id);
-
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`/posts/${id}`);
-      const postsList = posts.filter((post) => post.id !== id);
-      setPosts(postsList);
-      navigate('/', { replace: true }); // replace: true will replace the current page entry so that a back button cannot return to the page
-    } catch (err) {
-      console.err(`Error: ${err.message}`);
-    }
+  const handleDelete = (id) => {
+    deletePost(id);
+    navigate('/', { replace: true }); // replace: true will replace the current page entry so that a back button cannot return to the page
   };
 
   return (
